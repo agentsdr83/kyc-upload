@@ -12,7 +12,7 @@ function App() {
         />
 
         <Route
-          path="/consent/:leadId"
+          path="/consent/:leadId/:mobile"
           element={<ConsentPage />}
         />
       </Routes>
