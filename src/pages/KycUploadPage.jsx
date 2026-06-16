@@ -50,16 +50,47 @@ export default function KycUploadPage() {
         return;
       }
 
-      const entities = ocrResponse?.structuredSummary?.keyEntities || [];
+              const entities =
+          ocrResponse?.structuredSummary?.keyEntities || [];
 
-      setPanData({
-        panNumber: entities[0] || "",
-        name: entities[1] || "",
-        fatherName: entities[2] || "",
-        dob: entities[3] || "",
-        documentType,
-        summary: ocrResponse?.structuredSummary?.summary || "",
-      });
+        let panDataObj = {
+          panNumber: "",
+          name: "",
+          fatherName: "",
+          dob: "",
+        };
+
+        // New OCR format
+        if (
+          entities.length > 0 &&
+          typeof entities[0] === "object"
+        ) {
+          const entityMap = Object.fromEntries(
+            entities.map((e) => [e.entityType, e.entityValue])
+          );
+
+          panDataObj = {
+            panNumber: entityMap["PAN Number"] || entityMap["PAN"] || "",
+            name: entityMap["Name"] || "",
+            fatherName: entityMap["Father's Name"] || "",
+            dob: entityMap["Date of Birth"] || "",
+          };
+        }
+        // Old OCR format
+        else {
+          panDataObj = {
+            panNumber: entities[0] || "",
+            name: entities[1] || "",
+            fatherName: entities[2] || "",
+            dob: entities[3] || "",
+          };
+        }
+
+        setPanData({
+          ...panDataObj,
+          documentType,
+          summary: ocrResponse?.structuredSummary?.summary || "",
+        });
 
       setPanVerified(true);
     } catch (err) {
@@ -102,12 +133,44 @@ export default function KycUploadPage() {
         return;
       }
 
-      const entities = ocrResponse?.structuredSummary?.keyEntities || [];
+      const entities =
+        ocrResponse?.structuredSummary?.keyEntities || [];
+
+      let aadhaarData = {
+        name: "",
+        fatherName: "",
+        aadhaarNumber: "",
+        dob: "",
+      };
+
+      // New OCR format
+      if (
+        entities.length > 0 &&
+        typeof entities[0] === "object"
+      ) {
+        const entityMap = Object.fromEntries(
+          entities.map((e) => [e.entityType, e.entityValue])
+        );
+
+        aadhaarData = {
+          name: entityMap["Name"] || "",
+          fatherName: entityMap["Father's Name"] || "",
+          aadhaarNumber: entityMap["Aadhaar Number"] || "",
+          dob: entityMap["Date of Birth"] || "",
+        };
+      }
+      // Old OCR format
+      else {
+        aadhaarData = {
+          name: entities[2] || "",
+          fatherName: entities[3] || "",
+          aadhaarNumber: entities[4] || "",
+          dob: entities[6] || "", // if available
+        };
+      }
 
       setAddressData({
-        name: entities[2] || "",
-        fatherName: entities[3] || "",
-        aadhaarNumber: entities[4] || "",
+        ...aadhaarData,
         documentType,
       });
 
@@ -282,10 +345,6 @@ export default function KycUploadPage() {
                   <div>
                     <span className="font-semibold">Father's Name:</span>{" "}
                     {addressData.fatherName || "-"}
-                  </div>
-                  <div>
-                    <span className="font-semibold">Aadhaar Number:</span>{" "}
-                    {addressData.aadhaarNumber || "-"}
                   </div>
                   <div>
                     <span className="font-semibold">Document Type:</span>{" "}
