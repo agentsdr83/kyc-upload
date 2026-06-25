@@ -1,10 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 export default function ConsentPage() {
   const WHATSAPP_API =
     "https://j0e80xdyw4.execute-api.ap-south-1.amazonaws.com/InitiatePropertyTypeWhatsAppChat";
-  const { leadId,mobile  } = useParams();
+  const { leadId, mobile } = useParams();
 
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [verificationAccepted, setVerificationAccepted] = useState(false);
@@ -12,8 +12,27 @@ export default function ConsentPage() {
   const [showOtpSection, setShowOtpSection] = useState(false);
 
   const [consentVerified, setConsentVerified] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [timer, setTimer] = useState(30);
 
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+
+  useEffect(() => {
+    if (!showOtpSection) return;
+
+    const interval = setInterval(() => {
+      setTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [showOtpSection]);
 
   const otpRefs = useRef([]);
 
@@ -40,7 +59,7 @@ export default function ConsentPage() {
       return;
     }
 
-    try {
+    /*try {
       const messageBody = `Dear customer,\n\nTo proceed with your home loan application, please complete your KYC Verification by clicking the link below:\n\nhttps://main.d2s4uifsvainim.amplifyapp.com/kyc/${leadId}\n\nThis is a secure link. Please do not share it with anyone.`;
 
       const response = await fetch(WHATSAPP_API, {
@@ -67,7 +86,7 @@ export default function ConsentPage() {
       console.error(error);
 
       alert(error.message || "Failed to send WhatsApp message");
-    }
+    }*/
   };
 
   return (
@@ -172,7 +191,13 @@ export default function ConsentPage() {
           {allConsentsAccepted && !showOtpSection && (
             <div className="mt-8">
               <button
-                onClick={() => setShowOtpSection(true)}
+                onClick={() => {
+                  setShowOtpSection(true);
+
+                  setTimeout(() => {
+                    otpRefs.current[0]?.focus();
+                  }, 100);
+                }}
                 className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-semibold text-lg"
               >
                 Agree & Continue
@@ -182,38 +207,143 @@ export default function ConsentPage() {
 
           {/* OTP */}
 
+          {/* OTP */}
+
           {showOtpSection && (
             <div className="mt-10 border-t pt-8">
-              <h3 className="text-xl font-bold mb-2">OTP Verification</h3>
+              <div className="max-w-md mx-auto">
+                <div className="bg-white border rounded-3xl shadow-lg p-8">
+                  {/* Icon */}
 
-              <p className="text-gray-500 mb-6">
-                OTP has been sent to your registered mobile number +91
-                XXXXXXX123
-              </p>
+                  <div className="flex justify-center mb-4">
+                    <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-3xl">
+                      🔐
+                    </div>
+                  </div>
 
-              <div className="flex justify-center gap-3 mb-8">
-                {otp.map((digit, index) => (
-                  <input
-                    key={index}
-                    ref={(el) => (otpRefs.current[index] = el)}
-                    type="password"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) => handleOtpChange(e.target.value, index)}
-                    className="w-14 h-16 border-2 rounded-xl text-center text-2xl font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                ))}
+                  {/* Heading */}
+
+                  <h3 className="text-2xl font-bold text-center text-gray-800">
+                    OTP Verification
+                  </h3>
+
+                  <p className="text-center text-gray-500 mt-2">
+                    Enter the 6-digit code sent to
+                  </p>
+
+                  <p className="text-center font-semibold text-blue-700 mt-1">
+                    +91 {mobile?.slice(0, 2)}******{mobile?.slice(-2)}
+                  </p>
+
+                  {/* Banner */}
+
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-6 text-center">
+                    <p className="font-medium text-blue-700">
+                      OTP sent successfully
+                    </p>
+
+                    <p className="text-sm text-blue-500 mt-1">
+                      Please enter the code to continue
+                    </p>
+                  </div>
+
+                  {/* OTP Inputs */}
+
+                  <div className="flex justify-center gap-2 sm:gap-3 mt-8">
+                    {otp.map((digit, index) => (
+                      <input
+                        key={index}
+                        ref={(el) => (otpRefs.current[index] = el)}
+                        type="password"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={digit}
+                        onChange={(e) => handleOtpChange(e.target.value, index)}
+                        onKeyDown={(e) => {
+                          if (
+                            e.key === "Backspace" &&
+                            !otp[index] &&
+                            index > 0
+                          ) {
+                            otpRefs.current[index - 1]?.focus();
+                          }
+                        }}
+                        className="
+                w-12 h-14 sm:w-14 sm:h-16
+                border-2
+                border-gray-300
+                rounded-2xl
+                text-center
+                text-2xl
+                font-bold
+                shadow-sm
+                focus:outline-none
+                focus:border-blue-600
+                focus:ring-4
+                focus:ring-blue-100
+                transition-all
+              "
+                      />
+                    ))}
+                  </div>
+
+                  {/* Timer */}
+
+                  <div className="text-center mt-6">
+                    {timer > 0 ? (
+                      <p className="text-sm text-gray-500">
+                        Resend OTP in{" "}
+                        <span className="font-semibold text-blue-600">
+                          {timer}s
+                        </span>
+                      </p>
+                    ) : (
+                      <button
+                        onClick={() => setTimer(30)}
+                        className="text-blue-600 font-semibold hover:underline"
+                      >
+                        Resend OTP
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Verify Button */}
+
+                  {!consentVerified && (
+                    <button
+                      onClick={async () => {
+                        setIsVerifying(true);
+
+                        try {
+                          await handleVerifyOtp();
+                        } finally {
+                          setIsVerifying(false);
+                        }
+                      }}
+                      disabled={isVerifying}
+                      className="
+              w-full
+              mt-8
+              bg-gradient-to-r
+              from-blue-600
+              to-blue-700
+              hover:from-blue-700
+              hover:to-blue-800
+              disabled:opacity-70
+              text-white
+              py-4
+              rounded-xl
+              font-semibold
+              text-lg
+              shadow-lg
+              transition-all
+            "
+                    >
+                      {isVerifying ? "Verifying..." : "Verify & Continue"}
+                    </button>
+                  )}
+                </div>
               </div>
-
-              {!consentVerified && (
-                <button
-                  onClick={handleVerifyOtp}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-semibold"
-                >
-                  Verify OTP
-                </button>
-              )}
             </div>
           )}
 
@@ -230,11 +360,9 @@ export default function ConsentPage() {
                   </h3>
 
                   <p className="text-green-600">
-                    Consent captured successfully.
-                    A WhatsApp message containing
-                    your KYC document upload link
-                    has been sent to your registered
-                    mobile number.
+                    Consent captured successfully. A WhatsApp message containing
+                    your KYC document upload link has been sent to your
+                    registered mobile number.
                   </p>
                 </div>
               </div>
