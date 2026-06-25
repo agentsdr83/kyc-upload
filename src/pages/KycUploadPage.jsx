@@ -117,10 +117,10 @@ export default function KycUploadPage() {
       const documentType = ocrResponse?.structuredSummary?.documentType || "";
 
       // Validate Aadhaar
-      if (!documentType.toLowerCase().includes("aadhaar")) {
+      if (!documentType.toLowerCase().includes("aadhaar") && !documentType.toLowerCase().includes("voter")) {
         setAddressVerified(false);
         setAddressError(
-          "This is an invalid document for address proof. Please upload a valid Aadhaar.",
+          "This is an invalid document for address proof. Please upload a valid Address Proof.",
         );
         return;
       }
@@ -128,7 +128,7 @@ export default function KycUploadPage() {
       let aadhaarData = {
         name: ocrResponse?.structuredSummary?.fullName || "",
         fatherName: ocrResponse?.structuredSummary?.fatherName || "",
-        aadhaarNumber: ocrResponse?.structuredSummary?.documentNumber || "",
+        documentNumber: ocrResponse?.structuredSummary?.documentNumber || "",
         address: ocrResponse?.structuredSummary?.address || "",
       };
 
@@ -310,8 +310,8 @@ export default function KycUploadPage() {
                     {addressData.fatherName || "-"}
                   </div>
                   <div>
-                    <span className="font-semibold">Aadhaar Number:</span>{" "}
-                    {addressData.aadhaarNumber || "-"}
+                    <span className="font-semibold">Document Number:</span>{" "}
+                    {addressData.documentNumber || "-"}
                   </div>
                   <div>
                     <span className="font-semibold">Address:</span>{" "}
