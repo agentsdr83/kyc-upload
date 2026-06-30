@@ -58,7 +58,7 @@ export default function ConsentPage() {
       alert("Please enter a valid OTP");
       return;
     }
-
+    setConsentVerified(true);
     /*try {
       const messageBody = `Dear customer,\n\nTo proceed with your home loan application, please complete your KYC Verification by clicking the link below:\n\nhttps://main.d2s4uifsvainim.amplifyapp.com/kyc/${leadId}\n\nThis is a secure link. Please do not share it with anyone.`;
 
@@ -209,7 +209,7 @@ export default function ConsentPage() {
 
           {/* OTP */}
 
-          {showOtpSection && (
+          {showOtpSection && !consentVerified && (
             <div className="mt-10 border-t pt-8">
               <div className="max-w-md mx-auto">
                 <div className="bg-white border rounded-3xl shadow-lg p-8">
@@ -249,7 +249,7 @@ export default function ConsentPage() {
 
                   {/* OTP Inputs */}
 
-                  <div className="flex justify-center gap-2 sm:gap-3 mt-8">
+                  <div className="flex justify-center gap-1 sm:gap-3 mt-8 px-2">
                     {otp.map((digit, index) => (
                       <input
                         key={index}
@@ -269,20 +269,25 @@ export default function ConsentPage() {
                           }
                         }}
                         className="
-                w-12 h-14 sm:w-14 sm:h-16
-                border-2
-                border-gray-300
-                rounded-2xl
-                text-center
-                text-2xl
-                font-bold
-                shadow-sm
-                focus:outline-none
-                focus:border-blue-600
-                focus:ring-4
-                focus:ring-blue-100
-                transition-all
-              "
+w-10 h-12
+sm:w-12 sm:h-14
+md:w-14 md:h-16
+border-2
+border-gray-300
+rounded-xl
+sm:rounded-2xl
+text-center
+text-lg
+sm:text-xl
+md:text-2xl
+font-bold
+shadow-sm
+focus:outline-none
+focus:border-blue-600
+focus:ring-4
+focus:ring-blue-100
+transition-all
+"
                       />
                     ))}
                   </div>
@@ -350,20 +355,27 @@ export default function ConsentPage() {
           {/* Success */}
 
           {consentVerified && (
-            <div className="mt-8 bg-green-50 border border-green-200 rounded-xl p-6">
-              <div className="flex items-center gap-4">
-                <div className="text-4xl">✅</div>
+            <div className="mt-8">
+              <div className="bg-green-50 border border-green-200 rounded-2xl p-8 text-center shadow-sm">
+                <div className="w-20 h-20 mx-auto rounded-full bg-green-100 flex items-center justify-center text-5xl mb-5">
+                  ✅
+                </div>
 
-                <div>
-                  <h3 className="font-bold text-green-700 text-lg">
-                    Consent Successfully Verified
-                  </h3>
+                <h2 className="text-2xl font-bold text-green-700">
+                  Consent Verified Successfully
+                </h2>
 
-                  <p className="text-green-600">
-                    Consent captured successfully. A WhatsApp message containing
-                    your KYC document upload link has been sent to your
-                    registered mobile number.
-                  </p>
+                <p className="text-gray-600 mt-4 leading-7">
+                  Thank you for providing your consent.
+                </p>
+
+                <p className="text-gray-600 mt-2 leading-7">
+                  We've sent your secure KYC document upload link to your
+                  registered WhatsApp number.
+                </p>
+
+                <div className="mt-6 inline-flex items-center px-5 py-3 rounded-full bg-green-100 text-green-700 font-medium">
+                  ✓ Home Loan Application Updated
                 </div>
               </div>
             </div>
